@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Device } from '../types';
 import { Lightbulb, Thermometer, Fan, Tv, Blinds } from 'lucide-react';
 import { Switch } from './ui/switch';
 import { Slider } from './ui/slider';
 import { cn } from '../lib/utils';
+import { DeviceTimer } from './DeviceTimer';
 
 interface DeviceCardProps {
   device: Device;
@@ -136,10 +136,13 @@ export function DeviceCard({ device, onToggle, onUpdateStatus }: DeviceCardProps
             </p>
           </div>
         </div>
-        <Switch 
-          checked={device.isOn} 
-          onCheckedChange={(checked) => onToggle(device.id, checked)}
-        />
+        <div className="flex items-center gap-2">
+          <DeviceTimer deviceId={device.id} onUpdateDevice={onToggle} />
+          <Switch 
+            checked={device.isOn} 
+            onCheckedChange={(checked) => onToggle(device.id, checked)}
+          />
+        </div>
       </div>
       
       {getDeviceControls()}
