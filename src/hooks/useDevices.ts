@@ -20,12 +20,18 @@ export function useDevices() {
       if (error) throw error;
       
       // Transform database records to match our Device interface
-      return data.map((item): Device => ({
-        ...item,
-        isOn: item.is_on, // For backward compatibility
-        icon: getIconNameForDeviceType(item.type),
-        room: item.room_id || '', // This is simplified - in a real app we'd fetch room name
-      }));
+      return data.map((item): Device => {
+        // Explicitly cast the type to ensure it matches the Device interface
+        const deviceType = item.type as 'light' | 'thermostat' | 'camera' | 'lock' | 'speaker' | 'tv' | 'fan' | 'blind';
+        
+        return {
+          ...item,
+          type: deviceType,
+          isOn: item.is_on, // For backward compatibility
+          icon: getIconNameForDeviceType(deviceType),
+          room: item.room_id || '', // This is simplified - in a real app we'd fetch room name
+        };
+      });
     },
     enabled: !!user,
   });
