@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Device, Room } from '../types';
 import { DeviceCard } from './DeviceCard';
 import { RoomSelector } from './RoomSelector';
+import { AddDeviceDialog } from './AddDeviceDialog';
 
 interface DashboardProps {
   devices: Device[];
@@ -54,11 +54,14 @@ export function Dashboard({ devices, rooms }: DashboardProps) {
         <p className="text-gray-neutral">Control all your connected devices</p>
       </div>
       
-      <RoomSelector 
-        rooms={rooms} 
-        selectedRoom={selectedRoom} 
-        onRoomSelect={handleRoomSelect} 
-      />
+      <div className="flex justify-between items-center mb-6">
+        <RoomSelector 
+          rooms={rooms} 
+          selectedRoom={selectedRoom} 
+          onRoomSelect={handleRoomSelect} 
+        />
+        <AddDeviceDialog roomId={selectedRoom} />
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredDevices.map(device => (
