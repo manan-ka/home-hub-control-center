@@ -3,9 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { Room } from '@/types';
+import { useAuth } from '@/components/AuthProvider';
 
 export function useRooms() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: rooms, isLoading } = useQuery({
     queryKey: ['rooms'],
@@ -16,15 +18,26 @@ export function useRooms() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Room[];
+      
+      // Transform database records to match our Room interface
+      return data.map((item): Room => ({
+        ...item,
+        devices: [], // We'll populate this elsewhere or in a more complex query
+      }));
     },
+    enabled: !!user,
   });
 
   const addRoom = useMutation({
     mutationFn: async (newRoom: Omit<Room, 'id' | 'created_at'>) => {
+      const roomToInsert = {
+        name: newRoom.name,
+        user_id: user?.id
+      };
+
       const { data, error } = await supabase
         .from('rooms')
-        .insert([newRoom])
+        .insert([roomToInsert])
         .select()
         .single();
 
@@ -49,9 +62,14 @@ export function useRooms() {
 
   const updateRoom = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Room> & { id: string }) => {
+      // Transform to database format
+      const roomUpdates: any = {};
+      
+      if (updates.name) roomUpdates.name = updates.name;
+
       const { data, error } = await supabase
         .from('rooms')
-        .update(updates)
+        .update(roomUpdates)
         .eq('id', id)
         .select()
         .single();
