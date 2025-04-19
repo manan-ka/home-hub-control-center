@@ -24,12 +24,16 @@ export function useDevices() {
         // Explicitly cast the type to ensure it matches the Device interface
         const deviceType = item.type as 'light' | 'thermostat' | 'camera' | 'lock' | 'speaker' | 'tv' | 'fan' | 'blind';
         
+        // Ensure status is properly typed - convert from Json to the expected status type
+        const status = item.status as Device['status'] || {};
+        
         return {
           ...item,
           type: deviceType,
           isOn: item.is_on, // For backward compatibility
           icon: getIconNameForDeviceType(deviceType),
           room: item.room_id || '', // This is simplified - in a real app we'd fetch room name
+          status,
         };
       });
     },
