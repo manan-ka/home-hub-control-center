@@ -114,6 +114,10 @@ export function DeviceCard({ device, onToggle, onUpdateStatus }: DeviceCardProps
     }
   };
 
+  const handleDeviceTimerUpdate = (id: string, updates: { is_on: boolean }) => {
+    onToggle(id, updates.is_on);
+  };
+
   return (
     <div 
       className={cn(
@@ -137,7 +141,7 @@ export function DeviceCard({ device, onToggle, onUpdateStatus }: DeviceCardProps
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <DeviceTimer deviceId={device.id} onUpdateDevice={onToggle} />
+          <DeviceTimer deviceId={device.id} onUpdateDevice={handleDeviceTimerUpdate} />
           <Switch 
             checked={device.isOn} 
             onCheckedChange={(checked) => onToggle(device.id, checked)}

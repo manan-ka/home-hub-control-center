@@ -12,13 +12,16 @@ interface DeviceTimerProps {
 
 export function DeviceTimer({ deviceId, onUpdateDevice }: DeviceTimerProps) {
   const [minutes, setMinutes] = useState('');
+  const [timerActive, setTimerActive] = useState(false);
 
   const handleSetTimer = () => {
     const duration = parseInt(minutes);
     if (duration > 0) {
+      setTimerActive(true);
       // Set timer to turn off device after specified minutes
       setTimeout(() => {
         onUpdateDevice(deviceId, { is_on: false });
+        setTimerActive(false);
       }, duration * 60 * 1000);
     }
   };
@@ -26,7 +29,7 @@ export function DeviceTimer({ deviceId, onUpdateDevice }: DeviceTimerProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" className={timerActive ? "bg-purple-light" : ""}>
           <Timer className="h-4 w-4" />
         </Button>
       </DialogTrigger>
