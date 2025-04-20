@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useDevices } from '@/hooks/useDevices';
 import { useRooms } from '@/hooks/useRooms';
 import { toast } from '@/components/ui/use-toast';
-import { mockDevices, mockRooms } from '@/data/mockData';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -52,14 +51,17 @@ const Index = () => {
     return null;
   }
 
-  const displayDevices = devices?.length ? devices : mockDevices;
-  const displayRooms = rooms?.length ? rooms : mockRooms;
-
   return (
     <div className="min-h-screen bg-gray-light">
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <Dashboard devices={displayDevices} rooms={displayRooms} />
+        {devicesLoading || roomsLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <p>Loading your smart home...</p>
+          </div>
+        ) : (
+          <Dashboard devices={devices || []} rooms={rooms || []} />
+        )}
         <BackendInfo />
       </div>
     </div>

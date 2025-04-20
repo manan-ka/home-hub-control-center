@@ -49,9 +49,12 @@ export function useDevices() {
         room_id: newDevice.room_id,
         user_id: user?.id,
         is_on: newDevice.is_on !== undefined ? newDevice.is_on : false,
-        is_online: true,
-        status: newDevice.status || {}
+        is_online: newDevice.is_online,
+        status: newDevice.status || {},
+        icon: newDevice.icon // Make sure to include the icon
       };
+
+      console.log('Adding device:', deviceToInsert);
 
       const { data, error } = await supabase
         .from('devices')
@@ -59,7 +62,12 @@ export function useDevices() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding device:', error);
+        throw error;
+      }
+      
+      console.log('Device added successfully:', data);
       return data;
     },
     onSuccess: () => {
@@ -70,6 +78,7 @@ export function useDevices() {
       });
     },
     onError: (error) => {
+      console.error('Error in mutation:', error);
       toast({
         title: 'Error',
         description: error.message,
