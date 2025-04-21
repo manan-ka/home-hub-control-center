@@ -1,18 +1,18 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/components/AuthProvider';
 
 const Auth = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({ email: '', password: '', displayName: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login, register } = useAuth();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,27 +20,20 @@ const Auth = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
+        await register(form.email, form.password, form.displayName);
         toast({
           title: "Success!",
-          description: "Please check your email to confirm your account.",
+          description: "Account created. You are now signed in.",
         });
+        navigate('/');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
+        await login(form.email, form.password);
         navigate('/');
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error?.message || "Authentication failed.",
         variant: "destructive",
       });
     } finally {
@@ -64,8 +57,8 @@ const Auth = () => {
               <Input
                 type="email"
                 placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={form.email}
+                onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
                 required
               />
             </div>
@@ -73,11 +66,22 @@ const Auth = () => {
               <Input
                 type="password"
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={form.password}
+                onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
                 required
               />
             </div>
+            {isSignUp ? (
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Display Name"
+                  value={form.displayName}
+                  onChange={(e) => setForm(f => ({ ...f, displayName: e.target.value }))}
+                  required
+                />
+              </div>
+            ) : null}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>

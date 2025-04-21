@@ -5,13 +5,12 @@ import { useAuth } from '@/components/AuthProvider';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 
 export function Header() {
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
@@ -20,7 +19,7 @@ export function Header() {
   }, []);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    logout();
     navigate('/auth');
   };
 
@@ -36,7 +35,7 @@ export function Header() {
         </div>
         <div className="flex items-center gap-2">
           <Avatar>
-            <AvatarImage src={user?.user_metadata?.avatar_url} />
+            <AvatarImage src={user?.avatarUrl} />
             <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
           <Button variant="ghost" size="icon" onClick={handleSignOut}>
