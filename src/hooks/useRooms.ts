@@ -1,9 +1,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { Room } from '@/types';
 import { useAuth } from '@/components/AuthProvider';
+import { getRooms, addRoom as apiAddRoom, updateRoom as apiUpdateRoom, deleteRoom as apiDeleteRoom } from '@/api/backend';
 
 export function useRooms() {
   const queryClient = useQueryClient();
@@ -12,17 +12,11 @@ export function useRooms() {
   const { data: rooms, isLoading } = useQuery({
     queryKey: ['rooms'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('rooms')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      // Transform database records to match our Room interface
-      return data.map((item): Room => ({
+      const data = await getRooms();
+      // Make sure each room matches our Room interface
+      return data.map((item: any): Room => ({
         ...item,
-        devices: [], // We'll populate this elsewhere or in a more complex query
+        devices: [], // Update later to join devices if needed
       }));
     },
     enabled: !!user,
@@ -32,17 +26,8 @@ export function useRooms() {
     mutationFn: async (newRoom: Omit<Room, 'id' | 'created_at'>) => {
       const roomToInsert = {
         name: newRoom.name,
-        user_id: user?.id
       };
-
-      const { data, error } = await supabase
-        .from('rooms')
-        .insert([roomToInsert])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return await apiAddRoom(roomToInsert);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rooms'] });
@@ -51,7 +36,7 @@ export function useRooms() {
         description: 'Room added successfully',
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: 'Error',
         description: error.message,
@@ -62,20 +47,9 @@ export function useRooms() {
 
   const updateRoom = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Room> & { id: string }) => {
-      // Transform to database format
-      const roomUpdates: any = {};
-      
-      if (updates.name) roomUpdates.name = updates.name;
-
-      const { data, error } = await supabase
-        .from('rooms')
-        .update(roomUpdates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const updatesObj: any = {};
+      if (updates.name) updatesObj.name = updates.name;
+      return await apiUpdateRoom(id, updatesObj);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rooms'] });
@@ -84,7 +58,7 @@ export function useRooms() {
         description: 'Room updated successfully',
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: 'Error',
         description: error.message,
@@ -95,12 +69,7 @@ export function useRooms() {
 
   const deleteRoom = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('rooms')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await apiDeleteRoom(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rooms'] });
@@ -109,7 +78,7 @@ export function useRooms() {
         description: 'Room deleted successfully',
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: 'Error',
         description: error.message,
