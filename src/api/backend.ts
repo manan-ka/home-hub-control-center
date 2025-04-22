@@ -10,9 +10,12 @@ async function apiFetch<T = any>(url: string, options?: RequestInit): Promise<T>
   const token = localStorage.getItem("authToken");
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options?.headers || {}),
   };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${BASE_URL}${url}`, {
     credentials: 'include',
     headers,
@@ -86,4 +89,3 @@ export const updateDeviceStatus = (id: string, status: object) =>
     method: "PUT",
     body: JSON.stringify(status),
   });
-

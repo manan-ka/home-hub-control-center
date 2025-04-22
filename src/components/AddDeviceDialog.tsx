@@ -49,10 +49,10 @@ export function AddDeviceDialog({ roomId }: AddDeviceDialogProps) {
         name,
         type: type as any,
         room_id: roomId,
-        user_id: user.id,
+        user_id: user.userId, // Use userId instead of id
         is_on: false,
-        is_online: true, // Add the missing is_online property
-        icon: getIconNameForDeviceType(type), // Add the missing icon property
+        is_online: true,
+        icon: getIconNameForDeviceType(type),
         status: {}
       });
       setName('');
