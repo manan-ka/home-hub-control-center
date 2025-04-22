@@ -16,16 +16,24 @@ async function apiFetch<T = any>(url: string, options?: RequestInit): Promise<T>
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${url}`, {
-    credentials: 'include',
-    headers,
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || res.statusText);
+  try {
+    const res = await fetch(`${BASE_URL}${url}`, {
+      credentials: 'include',
+      headers,
+      ...options,
+    });
+    
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || res.statusText);
+    }
+    return res.json();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      throw new Error('Cannot connect to the backend server. Please ensure it is running at ' + BASE_URL);
+    }
+    throw error;
   }
-  return res.json();
 }
 
 // ----------- AUTH -----------------

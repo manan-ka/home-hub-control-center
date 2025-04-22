@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/components/AuthProvider';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { InfoIcon } from 'lucide-react';
 
 const Auth = () => {
   const [form, setForm] = useState({ email: '', password: '', displayName: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [backendError, setBackendError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, register } = useAuth();
@@ -17,6 +20,7 @@ const Auth = () => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setBackendError(null);
 
     try {
       if (isSignUp) {
@@ -31,6 +35,13 @@ const Auth = () => {
         navigate('/');
       }
     } catch (error: any) {
+      console.error("Auth error:", error);
+      
+      // Check if it's a connection error
+      if (error?.message?.includes('Cannot connect to the backend server')) {
+        setBackendError(error.message);
+      }
+      
       toast({
         title: "Error",
         description: error?.message || "Authentication failed.",
@@ -50,6 +61,18 @@ const Auth = () => {
             {isSignUp ? 'Sign up to get started' : 'Sign in to your account'}
           </p>
         </div>
+
+        {backendError && (
+          <Alert variant="destructive" className="bg-orange-50 border-orange-200">
+            <InfoIcon className="h-4 w-4" />
+            <AlertDescription className="ml-2">
+              {backendError}
+              <p className="mt-2 text-sm">
+                Make sure your Spring Boot server is running on {import.meta.env.VITE_API_URL || "http://localhost:8080"}
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleAuth} className="mt-8 space-y-6">
           <div className="space-y-4">
