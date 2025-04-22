@@ -29,17 +29,38 @@ export function AddDeviceDialog({ roomId }: AddDeviceDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim() && type && user) {
+      // Get the icon name based on the selected device type
+      const iconName = getIconNameForDeviceType(type);
+      
       addDevice.mutate({ 
         name,
         type: type as any,
         room_id: roomId,
         user_id: user.id,
         is_on: false,
+        is_online: true, // Add the missing is_online property
+        icon: iconName, // Add the missing icon property
         status: {}
       });
       setName('');
       setType('');
     }
+  };
+  
+  // Helper function to map device types to icon names (same as in useDevices.ts)
+  const getIconNameForDeviceType = (type: string): string => {
+    const iconMap: Record<string, string> = {
+      'light': 'lightbulb',
+      'thermostat': 'thermometer',
+      'camera': 'camera',
+      'lock': 'lock',
+      'speaker': 'speaker',
+      'tv': 'tv',
+      'fan': 'fan',
+      'blind': 'blinds'
+    };
+    
+    return iconMap[type] || 'lightbulb';
   };
 
   return (
