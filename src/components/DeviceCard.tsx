@@ -18,22 +18,22 @@ export function DeviceCard({ device, onToggle, onUpdateStatus }: DeviceCardProps
   const getDeviceIcon = () => {
     switch (device.icon) {
       case 'lightbulb':
-        return <Lightbulb className={cn("h-6 w-6", device.is_on ? "text-orange-bright" : "text-gray-neutral")} />;
+        return <Lightbulb className={cn("h-6 w-6", device.isOn ? "text-orange-bright" : "text-gray-neutral")} />;
       case 'thermometer':
-        return <Thermometer className={cn("h-6 w-6", device.is_on ? "text-blue-bright" : "text-gray-neutral")} />;
+        return <Thermometer className={cn("h-6 w-6", device.isOn ? "text-blue-bright" : "text-gray-neutral")} />;
       case 'fan':
-        return <Fan className={cn("h-6 w-6", device.is_on ? "text-blue-bright" : "text-gray-neutral")} />;
+        return <Fan className={cn("h-6 w-6", device.isOn ? "text-blue-bright" : "text-gray-neutral")} />;
       case 'tv':
-        return <Tv className={cn("h-6 w-6", device.is_on ? "text-blue-bright" : "text-gray-neutral")} />;
+        return <Tv className={cn("h-6 w-6", device.isOn ? "text-blue-bright" : "text-gray-neutral")} />;
       case 'blinds':
-        return <Blinds className={cn("h-6 w-6", device.is_on ? "text-blue-bright" : "text-gray-neutral")} />;
+        return <Blinds className={cn("h-6 w-6", device.isOn ? "text-blue-bright" : "text-gray-neutral")} />;
       default:
-        return <Lightbulb className={cn("h-6 w-6", device.is_on ? "text-orange-bright" : "text-gray-neutral")} />;
+        return <Lightbulb className={cn("h-6 w-6", device.isOn ? "text-orange-bright" : "text-gray-neutral")} />;
     }
   };
 
   const getDeviceControls = () => {
-    if (!device.is_on) return null;
+    if (!device.isOn) return null;
     
     switch (device.type) {
       case 'light':
@@ -123,7 +123,7 @@ export function DeviceCard({ device, onToggle, onUpdateStatus }: DeviceCardProps
       className={cn(
         "bg-white rounded-xl p-4 shadow-sm transition-all duration-300",
         isHovered ? "shadow-md" : "",
-        device.is_on ? "border-l-4 border-purple" : "border border-gray-light"
+        device.isOn ? "border-l-4 border-purple" : "border border-gray-light"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -136,14 +136,14 @@ export function DeviceCard({ device, onToggle, onUpdateStatus }: DeviceCardProps
           <div>
             <h3 className="font-medium">{device.name}</h3>
             <p className="text-xs text-gray-neutral capitalize">
-              {device.is_on ? 'On' : 'Off'}
+              {device.isOn ? 'On' : 'Off'}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <DeviceTimer deviceId={device.id} onUpdateDevice={handleDeviceTimerUpdate} />
           <Switch 
-            checked={device.is_on} 
+            checked={device.isOn} 
             onCheckedChange={(checked) => onToggle(device.id, checked)}
           />
         </div>
