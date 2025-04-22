@@ -14,7 +14,7 @@ import { mockDevices, mockRooms } from '@/data/mockData';
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { devices, isLoading: devicesLoading } = useDevices();
+  const { devices, isLoading: devicesLoading, refetch: refetchDevices } = useDevices();
   const { rooms, isLoading: roomsLoading } = useRooms();
 
   useEffect(() => {
@@ -24,6 +24,8 @@ const Index = () => {
         { event: '*', schema: 'public', table: 'devices' },
         (payload) => {
           console.log('Device change received:', payload);
+          // Immediately refetch devices when changes happen
+          refetchDevices();
           toast({
             title: 'Device Update',
             description: `A device has been ${payload.eventType}`,
@@ -45,7 +47,7 @@ const Index = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [refetchDevices]);
 
   if (!user) {
     navigate('/auth');

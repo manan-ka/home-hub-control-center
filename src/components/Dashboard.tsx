@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Device, Room } from '../types';
 import { DeviceCard } from './DeviceCard';
 import { RoomSelector } from './RoomSelector';
 import { AddDeviceDialog } from './AddDeviceDialog';
+import { useDevices } from '@/hooks/useDevices';
 
 interface DashboardProps {
   devices: Device[];
@@ -12,39 +14,35 @@ interface DashboardProps {
 export function Dashboard({ devices, rooms }: DashboardProps) {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [filteredDevices, setFilteredDevices] = useState<Device[]>(devices);
-  const [deviceStates, setDeviceStates] = useState<Device[]>(devices);
-
+  const { updateDevice } = useDevices();
+  
+  // Update filtered devices when devices array or selected room changes
   useEffect(() => {
     if (selectedRoom) {
-      const filtered = deviceStates.filter(device => device.room === selectedRoom);
+      const filtered = devices.filter(device => device.room_id === selectedRoom);
       setFilteredDevices(filtered);
     } else {
-      setFilteredDevices(deviceStates);
+      setFilteredDevices(devices);
     }
-  }, [selectedRoom, deviceStates]);
+  }, [selectedRoom, devices]);
 
   const handleRoomSelect = (roomId: string | null) => {
     setSelectedRoom(roomId);
   };
 
   const handleDeviceToggle = (id: string, isOn: boolean) => {
-    const updatedDevices = deviceStates.map(device => 
-      device.id === id ? { ...device, isOn } : device
-    );
-    setDeviceStates(updatedDevices);
-    
-    // This would normally send a request to the backend
-    console.log(`Toggle device ${id} to ${isOn ? 'on' : 'off'}`);
+    updateDevice.mutate({ 
+      id, 
+      is_on: isOn, 
+      isOn // For backward compatibility
+    });
   };
 
   const handleUpdateDeviceStatus = (id: string, status: any) => {
-    const updatedDevices = deviceStates.map(device => 
-      device.id === id ? { ...device, status: { ...device.status, ...status } } : device
-    );
-    setDeviceStates(updatedDevices);
-    
-    // This would normally send a request to the backend
-    console.log(`Update device ${id} status:`, status);
+    updateDevice.mutate({ 
+      id, 
+      status 
+    });
   };
 
   return (

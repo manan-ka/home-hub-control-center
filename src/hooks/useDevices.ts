@@ -9,7 +9,7 @@ export function useDevices() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  const { data: devices, isLoading } = useQuery({
+  const { data: devices, isLoading, refetch } = useQuery({
     queryKey: ['devices'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -164,5 +164,6 @@ export function useDevices() {
     addDevice,
     updateDevice,
     deleteDevice,
+    refetch
   };
 }
