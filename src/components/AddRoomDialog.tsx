@@ -17,7 +17,7 @@ export function AddRoomDialog() {
     if (name.trim() && user) {
       addRoom.mutate({ 
         name,
-        user_id: user.userId // Changed from id to userId
+        user_id: user.id
       });
       setName('');
     }
